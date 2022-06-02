@@ -5,6 +5,8 @@ import time
 import six
 import pandas as pd
 import numpy as np
+import subprocess
+from glob import glob
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -40,9 +42,10 @@ class Logger(object):
     def system(self, command, timeout=None):  # timeout in seconds, None means no timeout.
         start_time = time.time()
         log.log('>command start time: {T}'.format(T=time.ctime()) )
-        self.log(command)        
-
-        os.system(command)
+        self.log(command)   
+             
+        # Required to use bash shell
+        subprocess.call('/bin/bash -c "$PROC"', shell=True, env={'PROC': command})
  
         time_elapsed = round(time.time()-start_time,2)
         log.log('=command elapsed time: {T}'.format(T=sec_to_str(time_elapsed)))
@@ -78,7 +81,7 @@ done
 
 def split_a1_a2(post_imput_dir, log):
     log.log('Splitting a1 and a2 labels from coordiantes in .bim file')
-    for chrom in np.arange(1, 23):
+    for chrom in np.arange(1, 24):
         log.log('Processing chrom ' + str(chrom))
         chrom_file = "%s/chr%i_imputed_plink_TEMPORARY.bim" % (post_imput_dir, chrom)
         bim = pd.read_csv(chrom_file, sep='\t', header=None)
@@ -88,23 +91,23 @@ def split_a1_a2(post_imput_dir, log):
 
 RemoveDup_UpdateNames = """new_name="{snp_dir}/AllChr_Sorted_Tabdelim.txt"
 
-echo "Removing duplicate snps and renaming RSIDs
+echo "Removing duplicate snps and renaming RSIDs"
 chrom_files=($(ls {post_imput_dir}/chr*_imputed_plink_TEMPORARY.bim))
 for CHR in {{1..23}}
 do
     echo "Processing {post_imput_dir}/chr${{CHR}}_imputed_plink_TEMPORARY.bim"
     fileprefix={post_imput_dir}/chr${{CHR}}_imputed_plink_TEMPORARY
-    plink --bfile ${{fileprefix}} --write-snplist --out ${{fileprefix}}_allsnps
+    ~/plink2 --bfile ${{fileprefix}} --write-snplist --out ${{fileprefix}}_allsnps
     #Find duplciates
     snplist=${{fileprefix}}_allsnps.snplist
     dupfile=${{fileprefix}}_duplicatedsnps.snplist
     cat $snplist | sort | uniq -d > $dupfile
     # Remove duplicates
     nodup=${{fileprefix}}_NoDuplicates
-    plink --bfile $fileprefix --exclude $dupfile --make-bed --out ${{nodup}}
+    ~/plink2 --bfile $fileprefix --exclude $dupfile --make-bed --out ${{nodup}}
     # Update Name to RSIDs
     rsidout={post_imput_dir}/chr${{CHR}}_imputed_plink_RSID
-    plink --bfile ${{nodup}} --update-name ${{new_name}} --make-bed --out ${{rsidout}} &
+    ~/plink2 --bfile ${{nodup}} --update-name ${{new_name}} --make-bed --out ${{rsidout}} &
 done"""
 
 
@@ -122,7 +125,10 @@ def main(post_imput_dir, snp_dir, keep_temp, log):
     # Remove TEMPORARY files
     if not keep_temp:
         log.log('Removing TEMPORARY files')
-        log.system(f'rm {post_imput_dir}/*TEMPORARY*')
+        temp_files = pd.Series(glob(f'{post_imput_dir}/*TEMPORARY*'))  
+        temp_files = temp_files.loc[np.logical_not(temp_files.str.endswith('.log'))] # Retain TEMPORARY log files
+        for temp_file in temp_files:
+            log.system(f'rm {temp_file}')
     
 
 

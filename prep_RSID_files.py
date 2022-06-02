@@ -94,7 +94,7 @@ chrom_files=($(ls chr*_snp151_rsID_TEMPORARY.txt))
 for chrfile in ${{chrom_files[@]}}
 do
     echo "Processing ${{chrfile}}"
-    awk '{k=($1"\t"$2)} {{a[$1]++;b[$1]=k}}END{for (x in a) if (a[x]==1)print b[x]}' ${{chrfile}} > "${{chrfile/snp151_rsID/nodups}}"
+    awk '{{k=($1"\t"$2)}} {{a[$1]++;b[$1]=k}}END{{for (x in a) if (a[x]==1)print b[x]}}' ${{chrfile}} > "${{chrfile/snp151_rsID/nodups}}"
 done
 
 # concatonate to single file
