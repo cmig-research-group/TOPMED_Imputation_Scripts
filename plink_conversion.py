@@ -110,6 +110,30 @@ do
     ~/plink2 --bfile ${{nodup}} --update-name ${{new_name}} --make-bed --out ${{rsidout}} &
 done"""
 
+def fix_fam_IDs(post_imput_dir, log):
+    # TOPMED appends IID and FID into one ID, this function checks if IDS are of format IID_FID and fixes them to be IID
+    rsidfam = f'{post_imput_dir}/chr{{chrom}}_imputed_plink_RSID.fam'
+    for chrom in np.arange(1, 24):
+        fam_temp = rsidfam.format(chrom=chrom)
+        fam = pd.read_csv(fam_temp, sep='\t', header=None)
+        log.log('Checking fam IDs from ' + fam_temp)
+        if fam.iloc[0, 0].count('_')==3:
+            log.log('IDs of wrong format (IID_FID) from TOPMED: ' +  fam.iloc[0, 0])
+            fix_IDs = lambda x: x.split('_')[0] + '_' + x.split('_')[1]
+            fam.iloc[:, 0] = fam.iloc[:, 0].apply(fix_IDs)
+            fam.iloc[:, 1] = fam.iloc[:, 1].apply(fix_IDs)
+            log.log('Writing corrected IDs to ' + fam_temp)
+            fam.to_csv(fam_temp, sep='\t', header=False, index=False)
+
+def merge_files(post_imput_dir, log):
+    # Function to merge files
+    merge_file = f'{post_imput_dir}/merge.list'
+    rsidfile = f'{post_imput_dir}/chr{{chrom}}_imputed_plink_RSID'
+    files = pd.Series(np.arange(1, 24)).apply(lambda x: rsidfile.format(chrom=x))
+    files.to_csv(merge_file, index=False, header=False)
+    merge_out = f'{post_imput_dir}/merged_chroms'
+    log.log('Concatonating files to ' + merge_out)
+    log.system(f'~/plink_linux_x86_64/plink  --merge-list {merge_file} --make-bed --out {merge_out}')
 
 def main(post_imput_dir, snp_dir, keep_temp, log):
     
@@ -130,6 +154,11 @@ def main(post_imput_dir, snp_dir, keep_temp, log):
         for temp_file in temp_files:
             log.system(f'rm {temp_file}')
     
+    Fix fam IDs
+    fix_fam_IDs(post_imput_dir=post_imput_dir, log=log)
+
+    # Merged files
+    merge_files(post_imput_dir=post_imput_dir, log=log)
 
 
 if __name__ == "__main__":
