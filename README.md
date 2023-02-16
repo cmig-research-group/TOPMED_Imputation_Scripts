@@ -1,6 +1,20 @@
 This collection of scripts and functions is used for pre and post processing of [Michigan](https://imputation.biodatacatalyst.nhlbi.nih.gov/) or [TOPMED](https://imputation.biodatacatalyst.nhlbi.nih.gov/#!) imputation servers. 
 
 
+
+# Dependancies
+Use of these scripts requires the following to be installed:
+
+* [plink](https://www.cog-genomics.org/plink/)
+* [vcftools](https://github.com/vcftools/vcftools) (really only one script is needed which you can find here [vcf-sort](https://github.com/vcftools/vcftools/blob/master/src/perl/vcf-sort))
+* [samtools](https://www.htslib.org/download/)
+
+You can use the links above to install these libraries, alternatively should also be able to install these using [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html#installing-conda-on-a-system-that-has-other-python-installations-or-packages):
+```
+conda install -c bioconda plink vcftools samtools
+```
+
+
 # Pre-Imputation
 
 Before imputation `vcf_convert_gzip.py` takes a plink file (merged across chromosomes), seperates them into chromosomes, converts to vcf and gzips for upload to the servers. Usage is shown below:
