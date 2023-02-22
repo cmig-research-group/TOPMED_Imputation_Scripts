@@ -73,10 +73,10 @@ class Logger(object):
 best_guess_conversion="""echo "Converting vcf files to plink using best guess (prob greater than 0.9)"
 for CHR in {{1..22}}
 do
-  ~/plink2 --vcf {post_imput_dir}/chr${{CHR}}.dose.vcf.gz --double-id --import-dosage-certainty 0.9 --make-bed --recode --out {post_imput_dir}/chr${{CHR}}_imputed_plink_TEMPORARY
+  plink2 --vcf {post_imput_dir}/chr${{CHR}}.dose.vcf.gz --double-id --import-dosage-certainty 0.9 --make-bed --recode --out {post_imput_dir}/chr${{CHR}}_imputed_plink_TEMPORARY
 done
 
-~/plink2 --vcf {post_imput_dir}/chrX.dose.vcf.gz --double-id --import-dosage-certainty 0.9 --make-bed --recode --out {post_imput_dir}/chr23_imputed_plink_TEMPORARY
+plink2 --vcf {post_imput_dir}/chrX.dose.vcf.gz --double-id --import-dosage-certainty 0.9 --make-bed --recode --out {post_imput_dir}/chr23_imputed_plink_TEMPORARY
 """
 
 def split_a1_a2(post_imput_dir, log):
@@ -97,17 +97,17 @@ for CHR in {{1..23}}
 do
     echo "Processing {post_imput_dir}/chr${{CHR}}_imputed_plink_TEMPORARY.bim"
     fileprefix={post_imput_dir}/chr${{CHR}}_imputed_plink_TEMPORARY
-    ~/plink2 --bfile ${{fileprefix}} --write-snplist --out ${{fileprefix}}_allsnps
+    plink2 --bfile ${{fileprefix}} --write-snplist --out ${{fileprefix}}_allsnps
     #Find duplciates
     snplist=${{fileprefix}}_allsnps.snplist
     dupfile=${{fileprefix}}_duplicatedsnps.snplist
     cat $snplist | sort | uniq -d > $dupfile
     # Remove duplicates
     nodup=${{fileprefix}}_NoDuplicates
-    ~/plink2 --bfile $fileprefix --exclude $dupfile --make-bed --out ${{nodup}}
+    plink2 --bfile $fileprefix --exclude $dupfile --make-bed --out ${{nodup}}
     # Update Name to RSIDs
     rsidout={post_imput_dir}/chr${{CHR}}_imputed_plink_RSID
-    ~/plink2 --bfile ${{nodup}} --update-name ${{new_name}} --make-bed --out ${{rsidout}} &
+    plink2 --bfile ${{nodup}} --update-name ${{new_name}} --make-bed --out ${{rsidout}} &
 done"""
 
 def fix_fam_IDs(post_imput_dir, log):
@@ -133,7 +133,7 @@ def merge_files(post_imput_dir, log):
     files.to_csv(merge_file, index=False, header=False)
     merge_out = f'{post_imput_dir}/merged_chroms'
     log.log('Concatonating files to ' + merge_out)
-    log.system(f'~/plink_linux_x86_64/plink  --merge-list {merge_file} --make-bed --out {merge_out}')
+    log.system(f'plink  --merge-list {merge_file} --make-bed --out {merge_out}')
 
 def main(post_imput_dir, snp_dir, keep_temp, log):
     
@@ -154,7 +154,7 @@ def main(post_imput_dir, snp_dir, keep_temp, log):
         for temp_file in temp_files:
             log.system(f'rm {temp_file}')
     
-    Fix fam IDs
+    # Fix fam IDs
     fix_fam_IDs(post_imput_dir=post_imput_dir, log=log)
 
     # Merged files

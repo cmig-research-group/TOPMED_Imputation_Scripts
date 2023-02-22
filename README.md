@@ -6,12 +6,13 @@ This collection of scripts and functions is used for pre and post processing of 
 Use of these scripts requires the following to be installed:
 
 * [plink](https://www.cog-genomics.org/plink/)
-* [vcftools](https://github.com/vcftools/vcftools) (really only one script is needed which you can find here [vcf-sort](https://github.com/vcftools/vcftools/blob/master/src/perl/vcf-sort))
-* [samtools](https://www.htslib.org/download/)
+* [plink2](https://www.cog-genomics.org/plink/2.0/)
+* [hstlib](https://gist.github.com/adefelicibus/f6fd06df1b4bb104ceeaccdd7325b856#file-install-samtools-bcftools-and-htslib-md)
+
 
 You can use the links above to install these libraries, alternatively should also be able to install these using [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html#installing-conda-on-a-system-that-has-other-python-installations-or-packages):
 ```
-conda install -c bioconda plink vcftools samtools
+conda install -c bioconda plink plink2 hstlib
 ```
 
 

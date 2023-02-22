@@ -84,7 +84,8 @@ def main(bed_file, out_file, log):
         # Convert to VCF
         log.log(f'Creating vcf file at {vcf}')
         log.system('plink --ped ' + ped_file + ' --map ' + map_file + ' --recode vcf --out ' + vcf)
-        log.system('vcf-sort ' + vcf + '.vcf | bgzip -c > ' + vcf + '.vcf.gz')
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        log.system('perl ' + script_dir + '/vcf-sort ' + vcf + '.vcf | bgzip -c > ' + vcf + '.vcf.gz')
         log.log('Removing temporary files')
         nosex_file = map_file.replace('map', 'nosex')
         log.system(f'rm {ped_file} {map_file} {vcf + ".vcf"} {nosex_file}')
