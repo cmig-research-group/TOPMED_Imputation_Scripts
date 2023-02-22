@@ -93,7 +93,7 @@ def main(bed_file, out_file, log):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='This function converts a merged bed file to seperate chromosome gziped vcf files for upload to Michigan Imptuation Server')
     parser.add_argument('-bed_file', help='Filepath to merged bed file', type=str, default=None)
-    parser.add_argument('-out_file', help='Output file, chromosome number will be appended to this for each file', type=str, default=None)
+    parser.add_argument('-out_file', help='Output file, chromosome number will be appended to this for each file', type=str, default='./vcf_convert_gzip')
 
     # raw_genotype = '/space/gwas-syn2/1/data/GWAS/ABCD/genotype/release3.0/genotype_QCed'
     # bed_file = os.path.join(raw_genotype, 'ABCD_release_3.0_QCed')
@@ -101,22 +101,20 @@ if __name__ == "__main__":
     # out_file = out_dir + '/ABCD_release_2020_10_chr'
 
     opt = parser.parse_args()
-
+    # Logging
+    start_time = time.time()
+    defaults = vars(parser.parse_args([]))
+    opts = vars(opt)
+    non_defaults = [x for x in opts.keys() if opts[x] != defaults[x]]
+    log = Logger(opt.out_file + '.log', 'w')
+    header = "Call: \n"
+    header += './vcf_convert_gzip.py \\\n'
+    options = ['\t--'+x.replace('_','-')+' '+str(opts[x]).replace('\t', '\\t')+' \\' for x in non_defaults]
+    header += '\n'.join(options).replace('True','').replace('False','')
+    header = header[0:-1]+'\n'
+    log.log(header)
+    
     try:
-        # Logging
-        start_time = time.time()
-        defaults = vars(parser.parse_args([]))
-        opts = vars(opt)
-        non_defaults = [x for x in opts.keys() if opts[x] != defaults[x]]
-        log = Logger(opt.out_file + '.log', 'w')
-        header = "Call: \n"
-        header += './vcf_convert_gzip.py \\\n'
-        options = ['\t--'+x.replace('_','-')+' '+str(opts[x]).replace('\t', '\\t')+' \\' for x in non_defaults]
-        header += '\n'.join(options).replace('True','').replace('False','')
-        header = header[0:-1]+'\n'
-        log.log(header)
-
-
         main(opt.bed_file, opt.out_file, log)
 
     except Exception:
