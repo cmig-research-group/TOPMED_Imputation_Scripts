@@ -7,12 +7,12 @@ Use of these scripts requires the following to be installed:
 
 * [plink](https://www.cog-genomics.org/plink/)
 * [plink2](https://www.cog-genomics.org/plink/2.0/)
-* [hstlib](https://gist.github.com/adefelicibus/f6fd06df1b4bb104ceeaccdd7325b856#file-install-samtools-bcftools-and-htslib-md)
+* [htslib](https://gist.github.com/adefelicibus/f6fd06df1b4bb104ceeaccdd7325b856#file-install-samtools-bcftools-and-htslib-md)
 
 
 You can use the links above to install these libraries, alternatively should also be able to install these using [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html#installing-conda-on-a-system-that-has-other-python-installations-or-packages):
 ```
-conda install -c bioconda plink plink2 hstlib
+conda install -c bioconda plink plink2 htslib
 ```
 
 
