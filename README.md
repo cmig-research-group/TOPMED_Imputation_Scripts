@@ -12,9 +12,9 @@ Use of these scripts requires the following to be installed:
 
 You can use the links above to install these libraries, alternatively should also be able to install these using [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html#installing-conda-on-a-system-that-has-other-python-installations-or-packages):
 ```
-conda install -c bioconda plink plink2 htslib
+conda install -c bioconda plink plink2 htslib six
 ```
-
+Note: for plink and plink2 these are assumed to be in your `PATH` variable i.e. either defined in your `~/.bashrc` file or in your conda base environement. 
 
 # Pre-Imputation
 

@@ -1,12 +1,13 @@
-import os
 import sys, traceback
+import os
 import argparse
 import time
-import six
-import pandas as pd
-import numpy as np
 import subprocess
 from glob import glob
+import numpy as np
+import six
+import pandas as pd
+
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -45,6 +46,7 @@ class Logger(object):
         self.log(command)   
              
         # Required to use bash shell
+        command = 'source ~/.bashrc; ' + command # preppend sourcing bashrc to command
         subprocess.call('/bin/bash -c "$PROC"', shell=True, env={'PROC': command})
  
         time_elapsed = round(time.time()-start_time,2)
@@ -73,10 +75,10 @@ class Logger(object):
 best_guess_conversion="""echo "Converting vcf files to plink using best guess (prob greater than 0.9)"
 for CHR in {{1..22}}
 do
-  plink2 --vcf {post_imput_dir}/chr${{CHR}}.dose.vcf.gz --double-id --import-dosage-certainty 0.9 --make-bed --recode --out {post_imput_dir}/chr${{CHR}}_imputed_plink_TEMPORARY
+  plink2 --vcf {post_imput_dir}/chr${{CHR}}.dose.vcf.gz --double-id --import-dosage-certainty 0.9 --make-bed --out {post_imput_dir}/chr${{CHR}}_imputed_plink_TEMPORARY
 done
 
-plink2 --vcf {post_imput_dir}/chrX.dose.vcf.gz --double-id --import-dosage-certainty 0.9 --make-bed --recode --out {post_imput_dir}/chr23_imputed_plink_TEMPORARY
+plink2 --vcf {post_imput_dir}/chrX.dose.vcf.gz --double-id --import-dosage-certainty 0.9 --make-bed --out {post_imput_dir}/chr23_imputed_plink_TEMPORARY
 """
 
 def split_a1_a2(post_imput_dir, log):
@@ -168,10 +170,10 @@ if __name__ == "__main__":
     parser.add_argument('-keep_temp', help='Keep temporary files uses up disk space (used for debugging)', action='store_true')
 
     opt = parser.parse_args()
+    start_time = time.time()
 
     try:
-        # Logging
-        start_time = time.time()
+        # Logging    
         defaults = vars(parser.parse_args([]))
         opts = vars(opt)
         non_defaults = [x for x in opts.keys() if opts[x] != defaults[x]]
